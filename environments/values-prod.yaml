@@ -1,0 +1,231 @@
+# Production Environment Values Override
+# This file contains production-specific overrides for kagent chart
+
+# ==============================================================================
+# PRODUCTION CONFIGURATION
+# ==============================================================================
+
+tag: "latest"
+
+# Production uses Azure OpenAI for enterprise-grade reliability
+providers:
+  default: azureOpenAI
+  azureOpenAI:
+    provider: AzureOpenAI
+    model: "gpt-4"  # Premium model for production
+    apiKeySecretRef: kagent-azure-openai-prod
+    apiKeySecretKey: AZUREOPENAI_API_KEY
+    config:
+      apiVersion: "2024-02-15-preview"
+      azureDeployment: "kagent-gpt4-prod"
+      azureEndpoint: "https://kagent-prod.openai.azure.com/"
+
+# ==============================================================================
+# CONTROLLER CONFIGURATION - PRODUCTION
+# ==============================================================================
+
+controller:
+  replicas: 3        # High availability for production
+  loglevel: "warn"   # Warn logging for production (reduce noise)
+  resources:
+    requests:
+      cpu: 200m      # Higher resource requests for production
+      memory: 256Mi
+    limits:
+      cpu: 2000m     # Higher limits for production
+      memory: 1Gi
+  
+  # Production-grade tolerations and node selection
+  tolerations:
+    - key: "production"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+  
+  nodeSelector:
+    node-role: "production"
+    node-pool: "kagent-prod"
+
+# ==============================================================================
+# UI CONFIGURATION - PRODUCTION
+# ==============================================================================
+
+ui:
+  replicas: 3        # High availability for production
+  resources:
+    requests:
+      cpu: 200m      # Higher resource requests for production
+      memory: 512Mi
+    limits:
+      cpu: 1000m     # Higher limits for production
+      memory: 2Gi
+  
+  # Production-grade tolerations and node selection
+  tolerations:
+    - key: "production"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+  
+  nodeSelector:
+    node-role: "production"
+    node-pool: "kagent-prod"
+
+# ==============================================================================
+# AGENTS - FULL ENABLEMENT FOR PRODUCTION
+# ==============================================================================
+
+agents:
+  k8s-agent:
+    enabled: true
+  kgateway-agent:
+    enabled: true
+  istio-agent:
+    enabled: true     # Full service mesh for production
+  promql-agent:
+    enabled: true
+  observability-agent:
+    enabled: true
+  argo-rollouts-agent:
+    enabled: true     # Advanced deployments for production
+  helm-agent:
+    enabled: true
+  cilium-policy-agent:
+    enabled: true     # Full network policies for production
+  cilium-manager-agent:
+    enabled: true     # Full network management for production
+  cilium-debug-agent:
+    enabled: true     # Full debugging capabilities for production
+
+# ==============================================================================
+# BUILT-IN TOOLS - PRODUCTION SETTINGS
+# ==============================================================================
+
+kagent-tools:
+  enabled: true
+  replicaCount: 3    # High availability for production
+  tools:
+    loglevel: "warn"  # Warn logging for production
+
+# ==============================================================================
+# EXTERNAL MCP SERVERS - PRODUCTION
+# ==============================================================================
+
+querydoc:
+  enabled: true
+  replicas: 3        # High availability for production
+  resources:
+    requests:
+      cpu: 200m      # Higher resource requests for production
+      memory: 256Mi
+    limits:
+      cpu: 500m      # Higher limits for production
+      memory: 512Mi
+
+# ==============================================================================
+# DATABASE CONFIGURATION - PRODUCTION
+# ==============================================================================
+
+database:
+  type: postgres     # Use PostgreSQL for production
+  postgres:
+    url: postgres://kagent_user:kagent_pass@postgresql-prod.kagent.svc.cluster.local:5432/kagent_prod
+
+# ==============================================================================
+# AUTOSCALING - PRODUCTION
+# ==============================================================================
+
+# HPA configuration for production workloads
+autoscaling:
+  controller:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+    
+  ui:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  tools:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# ==============================================================================
+# SECURITY - PRODUCTION
+# ==============================================================================
+
+# Production security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+# ==============================================================================
+# OBSERVABILITY - PRODUCTION
+# ==============================================================================
+
+otel:
+  tracing:
+    enabled: true     # Enable for production monitoring
+    exporter:
+      otlp:
+        endpoint: https://otel-collector-prod.monitoring.svc.cluster.local:4317
+        timeout: 30     # Longer timeout for production
+        insecure: false # Secure connections for production
+        headers:
+          api-key: "${OTEL_API_KEY}"  # API key from secret
+  logging:
+    enabled: true     # Enable for production monitoring
+    exporter:
+      otlp:
+        endpoint: https://otel-collector-prod.monitoring.svc.cluster.local:4317
+        timeout: 30     # Longer timeout for production
+        insecure: false # Secure connections for production
+        headers:
+          api-key: "${OTEL_API_KEY}"  # API key from secret
+
+# ==============================================================================
+# GLOBAL PRODUCTION SETTINGS
+# ==============================================================================
+
+# Production-grade tolerations and node selection for all components
+tolerations:
+  - key: "production"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+nodeSelector:
+  node-role: "production"
+  node-pool: "kagent-prod"
+
+# Production image pull policy
+imagePullPolicy: Always
+
+# Production pod annotations for monitoring
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8083"
+  co.elastic.logs/enabled: "true"

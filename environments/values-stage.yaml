@@ -1,0 +1,126 @@
+# Staging Environment Values Override
+# This file contains staging-specific overrides for kagent chart
+
+# ==============================================================================
+# STAGING CONFIGURATION
+# ==============================================================================
+
+tag: "stage-latest"
+
+# Staging uses Anthropic for testing different providers
+providers:
+  default: anthropic
+  anthropic:
+    provider: Anthropic
+    model: "claude-3-5-sonnet-20241022"  # Current model for staging
+    apiKeySecretRef: kagent-anthropic-stage
+    apiKeySecretKey: ANTHROPIC_API_KEY
+
+# ==============================================================================
+# CONTROLLER CONFIGURATION - STAGING
+# ==============================================================================
+
+controller:
+  replicas: 2        # Medium replicas for staging
+  loglevel: "info"   # Info logging for staging
+  resources:
+    requests:
+      cpu: 100m      # Medium resource requests for staging
+      memory: 128Mi
+    limits:
+      cpu: 1500m     # Medium limits for staging
+      memory: 384Mi
+
+# ==============================================================================
+# UI CONFIGURATION - STAGING
+# ==============================================================================
+
+ui:
+  replicas: 2        # Medium replicas for staging
+  resources:
+    requests:
+      cpu: 100m      # Medium resource requests for staging
+      memory: 256Mi
+    limits:
+      cpu: 750m      # Medium limits for staging
+      memory: 768Mi
+
+# ==============================================================================
+# AGENTS - COMPREHENSIVE ENABLEMENT FOR STAGING
+# ==============================================================================
+
+agents:
+  k8s-agent:
+    enabled: true
+  kgateway-agent:
+    enabled: true
+  istio-agent:
+    enabled: true     # Enable for staging testing
+  promql-agent:
+    enabled: true
+  observability-agent:
+    enabled: true
+  argo-rollouts-agent:
+    enabled: true     # Enable for staging testing
+  helm-agent:
+    enabled: true
+  cilium-policy-agent:
+    enabled: true     # Enable for staging testing
+  cilium-manager-agent:
+    enabled: true     # Enable for staging testing
+  cilium-debug-agent:
+    enabled: false    # Keep disabled for resource efficiency
+
+# ==============================================================================
+# BUILT-IN TOOLS - STAGING SETTINGS
+# ==============================================================================
+
+kagent-tools:
+  enabled: true
+  replicaCount: 2    # Medium replicas for staging
+  tools:
+    loglevel: "info"
+
+# ==============================================================================
+# EXTERNAL MCP SERVERS - STAGING
+# ==============================================================================
+
+querydoc:
+  enabled: true
+  replicas: 2        # Medium replicas for staging
+  resources:
+    requests:
+      cpu: 100m      # Medium resource requests for staging
+      memory: 128Mi
+    limits:
+      cpu: 400m      # Medium limits for staging
+      memory: 384Mi
+
+# ==============================================================================
+# DATABASE CONFIGURATION - STAGING
+# ==============================================================================
+
+database:
+  type: postgres     # Use PostgreSQL for staging
+  postgres:
+    url: postgres://kagent:kagent@postgresql-stage.kagent.svc.cluster.local:5432/kagent_stage
+
+# ==============================================================================
+# OBSERVABILITY - STAGING
+# ==============================================================================
+
+otel:
+  tracing:
+    enabled: true     # Enable for staging monitoring
+    exporter:
+      otlp:
+        endpoint: http://otel-collector-stage.monitoring.svc.cluster.local:4317
+        timeout: 15
+        insecure: false  # More secure for staging
+  logging:
+    enabled: true     # Enable for staging monitoring
+    exporter:
+      otlp:
+        endpoint: http://otel-collector-stage.monitoring.svc.cluster.local:4317
+        timeout: 15
+        insecure: false  # More secure for staging

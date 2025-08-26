@@ -1,0 +1,117 @@
+# Development Environment Values Override
+# This file contains development-specific overrides for kagent chart
+
+# ==============================================================================
+# DEVELOPMENT CONFIGURATION
+# ==============================================================================
+
+tag: "dev-latest"
+
+# Development uses OpenAI with smaller model for cost efficiency
+providers:
+  default: openAI
+  openAI:
+    provider: OpenAI
+    model: "gpt-4o-mini"  # Cheaper model for dev
+    apiKeySecretRef: kagent-openai-dev
+    apiKeySecretKey: OPENAI_API_KEY
+
+# ==============================================================================
+# CONTROLLER CONFIGURATION - DEV
+# ==============================================================================
+
+controller:
+  replicas: 1
+  loglevel: "debug"  # Debug logging for development
+  resources:
+    requests:
+      cpu: 50m      # Lower resource requests for dev
+      memory: 64Mi
+    limits:
+      cpu: 1        # Lower limits for dev
+      memory: 256Mi
+
+# ==============================================================================
+# UI CONFIGURATION - DEV
+# ==============================================================================
+
+ui:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m      # Lower resource requests for dev
+      memory: 128Mi
+    limits:
+      cpu: 500m     # Lower limits for dev
+      memory: 512Mi
+
+# ==============================================================================
+# AGENTS - SELECTIVE ENABLEMENT FOR DEV
+# ==============================================================================
+
+agents:
+  k8s-agent:
+    enabled: true
+  kgateway-agent:
+    enabled: true
+  istio-agent:
+    enabled: false    # Disable for simpler dev setup
+  promql-agent:
+    enabled: true
+  observability-agent:
+    enabled: true
+  argo-rollouts-agent:
+    enabled: false    # Disable for simpler dev setup
+  helm-agent:
+    enabled: true
+  cilium-policy-agent:
+    enabled: false    # Disable for simpler dev setup
+  cilium-manager-agent:
+    enabled: false    # Disable for simpler dev setup
+  cilium-debug-agent:
+    enabled: false    # Disable for simpler dev setup
+
+# ==============================================================================
+# BUILT-IN TOOLS - DEV SETTINGS
+# ==============================================================================
+
+kagent-tools:
+  enabled: true
+  replicaCount: 1
+  tools:
+    loglevel: "debug"
+
+# ==============================================================================
+# EXTERNAL MCP SERVERS - DEV
+# ==============================================================================
+
+querydoc:
+  enabled: true
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m      # Lower resource requests for dev
+      memory: 64Mi
+    limits:
+      cpu: 250m     # Lower limits for dev
+      memory: 256Mi
+
+# ==============================================================================
+# OBSERVABILITY - DEV
+# ==============================================================================
+
+otel:
+  tracing:
+    enabled: true     # Enable for dev debugging
+    exporter:
+      otlp:
+        endpoint: http://host.docker.internal:4317
+        timeout: 15
+        insecure: true
+  logging:
+    enabled: true     # Enable for dev debugging
+    exporter:
+      otlp:
+        endpoint: http://host.docker.internal:4317
+        timeout: 15
+        insecure: true
