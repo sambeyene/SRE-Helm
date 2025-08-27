@@ -35,6 +35,28 @@ controller:
     limits:
       cpu: 1        # Lower limits for dev
       memory: 256Mi
+  # AutoGen sidecar configuration for dev
+  autogen:
+    enabled: true     # Enable AutoGen sidecar
+    baseUrl: "http://127.0.0.1:8081/api"   # Sidecar URL
+    wsUrl: "ws://127.0.0.1:8081/api/ws"    # WebSocket URL
+    image:
+      # Try using official AutoGen or disable if no suitable image exists
+      repository: microsoft/autogen
+      tag: "latest"   # Use latest for testing
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    env:
+      - name: LOG_LEVEL
+        value: "debug"
+      - name: PORT
+        value: "8081"
 
 # ==============================================================================
 # UI CONFIGURATION - DEV

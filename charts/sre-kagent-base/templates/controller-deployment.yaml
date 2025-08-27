@@ -42,43 +42,30 @@ spec:
       containers:
         - name: controller
           args:
-          # Consider using env vars (stored in a dedicated ConfigMap(s)) rather than this
-          {{/* #we need to pass the default model config name to the app otherwise helm upgrade will not allow provider type change due to validations */}}
+            # Use actual valid controller arguments
             - -default-model-config-name
             - {{ include "kagent.defaultModelConfigName" . | quote }}
+            - -default-model-config-namespace
+            - {{ include "kagent.namespace" . | quote }}
             - -zap-log-level
             - {{ .Values.controller.loglevel }}
-            - -watch-namespaces
-            - "{{ include "kagent.watchNamespaces" . }}"
-            - -streaming-max-buf-size
-            - {{ .Values.controller.streaming.maxBufSize | quote }}
-            - -streaming-initial-buf-size
-            - {{ .Values.controller.streaming.initialBufSize | quote }}
-            - -streaming-timeout
-            - {{ .Values.controller.streaming.timeout | quote }}
-            - -database-type
-            - {{ .Values.database.type }}
-            {{- if eq .Values.database.type "sqlite" }}
-            - -sqlite-database-path
-            - /sqlite-volume/{{ .Values.database.sqlite.databaseName }}
-            {{- else if eq .Values.database.type "postgres" }}
-            - -postgres-database-url
-            - {{ .Values.database.postgres.url }}
+            - -health-probe-bind-address
+            - ":8082"
+            - -http-server-address
+            - ":{{ .Values.controller.service.ports.targetPort }}"
+            - -metrics-bind-address
+            - "0"
+            {{- if .Values.controller.autogen.baseUrl }}
+            - -autogen-base-url
+            - {{ .Values.controller.autogen.baseUrl | quote }}
             {{- end }}
-            {{- if .Values.registry }}
-            - -image-registry
-            - {{ .Values.registry }}
+            {{- if .Values.controller.autogen.wsUrl }}
+            - -autogen-ws-url
+            - {{ .Values.controller.autogen.wsUrl | quote }}
             {{- end }}
-            {{- if .Values.tag }}
-            - -image-tag
-            - {{ .Values.tag }}
+            {{- if and .Values.controller.leaderElection .Values.controller.leaderElection.enabled }}
+            - -leader-elect
             {{- end }}
-            {{- if .Values.imagePullPolicy }}
-            - -image-pull-policy
-            - {{ .Values.imagePullPolicy }}
-            {{- end }}
-            - -image-repository
-            - {{ .Values.controller.agentImage.repository }}
           securityContext:
             {{- toYaml .Values.controller.securityContext | nindent 12 }}
           image: "{{ .Values.controller.image.registry | default .Values.registry  }}/{{ .Values.controller.image.repository }}:{{ coalesce .Values.tag .Values.controller.image.tag .Chart.Version }}"
@@ -131,3 +118,19 @@ spec:
           volumeMounts:
             - name: sqlite-volume
               mountPath: /sqlite-volume
+        {{- if .Values.controller.autogen.enabled }}
+        # AutoGen sidecar container
+        - name: autogen
+          image: "{{ .Values.controller.autogen.image.registry | default .Values.registry }}/{{ .Values.controller.autogen.image.repository }}:{{ .Values.controller.autogen.image.tag | default .Chart.Version }}"
+          imagePullPolicy: {{ .Values.controller.autogen.image.pullPolicy | default .Values.imagePullPolicy }}
+          resources:
+            {{- toYaml (.Values.controller.autogen.resources | default .Values.controller.resources) | nindent 12 }}
+          ports:
+            - name: autogen-api
+              containerPort: 8081
+              protocol: TCP
+          env:
+            {{- with .Values.controller.autogen.env }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+        {{- end }}
