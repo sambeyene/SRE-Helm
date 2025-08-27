@@ -3,8 +3,8 @@ name: sre-kagent-crds
 description: SRE Kagent CRDs - Custom Resource Definitions for kagent
 type: application
 version: 0.2.0
-dependencies:
-  - name: kmcp-crds
-    version: 0.1.0
-    repository: oci://ghcr.io/kagent-dev/kmcp/helm
+# dependencies:
+#   - name: kmcp-crds
+#     version: 0.1.0
+#     repository: oci://ghcr.io/kagent-dev/kmcp/helm
 

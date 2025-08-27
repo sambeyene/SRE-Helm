@@ -5,7 +5,12 @@
 # DEVELOPMENT CONFIGURATION
 # ==============================================================================
 
-tag: "dev-latest"
+# Use unique names to avoid conflicts with production kagent
+nameOverride: "sre-kagent"
+fullnameOverride: "sre-kagent-dev"
+
+# Use the chart version or latest stable tag instead of non-existent dev-latest
+# tag: ""  # Will default to Chart version
 
 # Development uses OpenAI with smaller model for cost efficiency
 providers:
@@ -49,27 +54,28 @@ ui:
 # AGENTS - SELECTIVE ENABLEMENT FOR DEV
 # ==============================================================================
 
+# Agents temporarily disabled - missing local chart dependencies
 agents:
   k8s-agent:
-    enabled: true
+    enabled: false    # Missing local chart
   kgateway-agent:
-    enabled: true
+    enabled: false    # Missing local chart
   istio-agent:
-    enabled: false    # Disable for simpler dev setup
+    enabled: false    # Missing local chart
   promql-agent:
-    enabled: true
+    enabled: false    # Missing local chart
   observability-agent:
-    enabled: true
+    enabled: false    # Missing local chart
   argo-rollouts-agent:
-    enabled: false    # Disable for simpler dev setup
+    enabled: false    # Missing local chart
   helm-agent:
-    enabled: true
+    enabled: false    # Missing local chart
   cilium-policy-agent:
-    enabled: false    # Disable for simpler dev setup
+    enabled: false    # Missing local chart
   cilium-manager-agent:
-    enabled: false    # Disable for simpler dev setup
+    enabled: false    # Missing local chart
   cilium-debug-agent:
-    enabled: false    # Disable for simpler dev setup
+    enabled: false    # Missing local chart
 
 # ==============================================================================
 # BUILT-IN TOOLS - DEV SETTINGS
@@ -85,16 +91,10 @@ kagent-tools:
 # EXTERNAL MCP SERVERS - DEV
 # ==============================================================================
 
-querydoc:
-  enabled: true
-  replicas: 1
-  resources:
-    requests:
-      cpu: 50m      # Lower resource requests for dev
-      memory: 64Mi
-    limits:
-      cpu: 250m     # Lower limits for dev
-      memory: 256Mi
+# External MCP servers temporarily disabled - missing local charts
+external-mcp:
+  querydoc:
+    enabled: false    # Missing local chart
 
 # ==============================================================================
 # OBSERVABILITY - DEV
