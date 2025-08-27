@@ -93,12 +93,13 @@ kagent-tools:
     loglevel: "debug"
 
 # ==============================================================================
-# EXTERNAL MCP SERVERS - DISABLE FOR DEV
+# EXTERNAL MCP SERVERS - ENABLE FOR AGENT FUNCTIONALITY
 # ==============================================================================
 
+# Enable querydoc service - required by agents for documentation queries
 external-mcp:
   querydoc:
-    enabled: false
+    enabled: true     # Required for agent functionality
 
 # ==============================================================================
 # OBSERVABILITY - DEV
