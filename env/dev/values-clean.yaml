@@ -53,31 +53,34 @@ ui:
       memory: 512Mi
 
 # ==============================================================================
-# AGENTS - DISABLE FOR INITIAL DEV TESTING
+# AGENTS - CORE SRE AGENTS ENABLED
 # ==============================================================================
 
-# Disable agents initially to focus on core components
+# Core SRE agents for immediate testing and operations
 agents:
+  # ENABLED: Core SRE agents
   k8s-agent:
-    enabled: false
-  kgateway-agent:
-    enabled: false
-  istio-agent:
-    enabled: false
-  promql-agent:
-    enabled: false
-  observability-agent:
-    enabled: false
-  argo-rollouts-agent:
-    enabled: false
+    enabled: true          # Kubernetes cluster management
   helm-agent:
-    enabled: false
+    enabled: true          # Helm chart operations
+  observability-agent:
+    enabled: true          # Monitoring and observability
+  
+  # DISABLED: Additional agents (enable as needed)
+  kgateway-agent:
+    enabled: false         # API gateway operations
+  istio-agent:
+    enabled: false         # Service mesh (enable for istio clusters)
+  promql-agent:
+    enabled: false         # Prometheus queries (enable with monitoring)
+  argo-rollouts-agent:
+    enabled: false         # Progressive delivery
   cilium-policy-agent:
-    enabled: false
+    enabled: false         # Network policies (enable for cilium)
   cilium-manager-agent:
-    enabled: false
+    enabled: false         # Cilium management
   cilium-debug-agent:
-    enabled: false
+    enabled: false         # Cilium debugging
 
 # ==============================================================================
 # BUILT-IN TOOLS - DEV SETTINGS
