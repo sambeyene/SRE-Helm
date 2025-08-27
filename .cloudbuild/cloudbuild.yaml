@@ -1,0 +1,121 @@
+steps:
+  # Install Helm 
+  - name: 'gcr.io/gke-release/helm'
+    id: 'setup-helm'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Helm version: $(helm version --short)"
+        
+  # Add external Helm repositories
+  - name: 'gcr.io/gke-release/helm'
+    id: 'add-helm-repos'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Adding kagent-dev tools repository..."
+        # Note: kagent-tools is OCI registry, no need to add as traditional repo
+        
+  # Lint base chart
+  - name: 'gcr.io/gke-release/helm'
+    id: 'lint-base-chart'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Linting sre-kagent-base chart..."
+        cd charts/sre-kagent-base
+        helm dependency update || true
+        helm lint .
+        
+  # Lint CRDs chart
+  - name: 'gcr.io/gke-release/helm'
+    id: 'lint-crds-chart'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Linting sre-kagent-crds chart..."
+        cd charts/sre-kagent-crds
+        helm dependency update || true
+        helm lint .
+
+  # Package base chart
+  - name: 'gcr.io/gke-release/helm'
+    id: 'package-base-chart'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Packaging sre-kagent-base chart..."
+        cd charts
+        helm package sre-kagent-base
+        
+  # Package CRDs chart
+  - name: 'gcr.io/gke-release/helm'
+    id: 'package-crds-chart'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Packaging sre-kagent-crds chart..."
+        cd charts
+        helm package sre-kagent-crds
+
+  # Push to Artifact Registry
+  - name: 'gcr.io/gke-release/helm'
+    id: 'push-charts'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Configuring Helm for Artifact Registry..."
+        gcloud auth configure-docker us-central1-docker.pkg.dev
+        
+        echo "Pushing charts to Artifact Registry..."
+        cd charts
+        
+        # Push base chart
+        helm registry login us-central1-docker.pkg.dev
+        helm push sre-kagent-base-*.tgz oci://us-central1-docker.pkg.dev/$PROJECT_ID/sre-helm
+        
+        # Push CRDs chart  
+        helm push sre-kagent-crds-*.tgz oci://us-central1-docker.pkg.dev/$PROJECT_ID/sre-helm
+
+  # Optional: Deploy to dev environment (if on dev branch)
+  - name: 'gcr.io/gke-release/helm'
+    id: 'dev-deploy'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        if [ "$BRANCH_NAME" = "dev" ]; then
+          echo "Deploying to sre-dev namespace..."
+          gcloud container clusters get-credentials sre-dev-cluster --zone=us-central1-a --project=$PROJECT_ID
+          
+          kubectl create namespace sre-dev --dry-run=client -o yaml | kubectl apply -f -
+          
+          helm upgrade --install sre-kagent-dev charts/sre-kagent-base \
+            --namespace sre-dev \
+            -f env/dev/values.yaml \
+            --wait --timeout=300s
+            
+          echo "Verifying deployment..."
+          kubectl get pods -n sre-dev
+        else
+          echo "Skipping dev deployment (branch: $BRANCH_NAME)"
+        fi
+
+# Build options
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_STANDARD_4
+
+# Timeout
+timeout: '1200s'
+
+# Substitutions
+substitutions:
+  _HELM_REPO_URL: 'us-central1-docker.pkg.dev/$PROJECT_ID/sre-helm'

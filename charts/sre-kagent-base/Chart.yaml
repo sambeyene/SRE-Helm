@@ -1,8 +1,8 @@
 apiVersion: v2
-name: kagent
-description: A Helm chart for kagent, built with Autogen
+name: sre-kagent-base
+description: SRE Kagent Base Chart - foundational kagent deployment
 type: application
-version: 0.1.0
+version: 0.2.0
 dependencies:
   - name: kagent-tools
     version: 0.0.11

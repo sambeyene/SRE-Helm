@@ -1,8 +1,8 @@
 apiVersion: v2
-name: kagent-crds
-description: CRDs for kagent
+name: sre-kagent-crds
+description: SRE Kagent CRDs - Custom Resource Definitions for kagent
 type: application
-version: 0.1.0
+version: 0.2.0
 dependencies:
   - name: kmcp-crds
     version: 0.1.0
