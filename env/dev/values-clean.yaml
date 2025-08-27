@@ -1,0 +1,116 @@
+# Development Environment Values Override for Official Kagent Chart
+# This file contains development-specific overrides for the official kagent chart
+
+# ==============================================================================
+# DEVELOPMENT CONFIGURATION  
+# ==============================================================================
+
+# Use unique names to avoid conflicts with production kagent
+nameOverride: "sre-kagent"
+fullnameOverride: "sre-kagent-dev"
+
+# Use chart version (will use 0.6.5)
+tag: ""
+
+# Development uses OpenAI with smaller model for cost efficiency
+providers:
+  default: openAI
+  openAI:
+    provider: OpenAI
+    model: "gpt-4o-mini"  # Cheaper model for dev
+    apiKeySecretRef: kagent-openai-dev
+    apiKeySecretKey: OPENAI_API_KEY
+
+# ==============================================================================
+# CONTROLLER CONFIGURATION - DEV
+# ==============================================================================
+
+controller:
+  replicas: 1
+  loglevel: "debug"  # Debug logging for development
+  resources:
+    requests:
+      cpu: 50m      # Lower resource requests for dev
+      memory: 64Mi
+    limits:
+      cpu: 1        # Lower limits for dev
+      memory: 256Mi
+
+# ==============================================================================
+# UI CONFIGURATION - DEV
+# ==============================================================================
+
+ui:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m      # Lower resource requests for dev
+      memory: 128Mi
+    limits:
+      cpu: 500m     # Lower limits for dev
+      memory: 512Mi
+
+# ==============================================================================
+# AGENTS - DISABLE FOR INITIAL DEV TESTING
+# ==============================================================================
+
+# Disable agents initially to focus on core components
+agents:
+  k8s-agent:
+    enabled: false
+  kgateway-agent:
+    enabled: false
+  istio-agent:
+    enabled: false
+  promql-agent:
+    enabled: false
+  observability-agent:
+    enabled: false
+  argo-rollouts-agent:
+    enabled: false
+  helm-agent:
+    enabled: false
+  cilium-policy-agent:
+    enabled: false
+  cilium-manager-agent:
+    enabled: false
+  cilium-debug-agent:
+    enabled: false
+
+# ==============================================================================
+# BUILT-IN TOOLS - DEV SETTINGS
+# ==============================================================================
+
+kagent-tools:
+  enabled: true
+  replicaCount: 1
+  tools:
+    loglevel: "debug"
+
+# ==============================================================================
+# EXTERNAL MCP SERVERS - DISABLE FOR DEV
+# ==============================================================================
+
+external-mcp:
+  querydoc:
+    enabled: false
+
+# ==============================================================================
+# OBSERVABILITY - DEV
+# ==============================================================================
+
+otel:
+  tracing:
+    enabled: true     # Enable for dev debugging
+    exporter:
+      otlp:
+        endpoint: http://host.docker.internal:4317
+        timeout: 15
+        insecure: true
+  logging:
+    enabled: true     # Enable for dev debugging
+    exporter:
+      otlp:
+        endpoint: http://host.docker.internal:4317
+        timeout: 15
+        insecure: true

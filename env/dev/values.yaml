@@ -35,28 +35,7 @@ controller:
     limits:
       cpu: 1        # Lower limits for dev
       memory: 256Mi
-  # AutoGen sidecar configuration for dev
-  autogen:
-    enabled: false    # Temporarily disabled - AutoGen image not available
-    baseUrl: ""   # Disabled - no AutoGen service
-    wsUrl: ""     # Disabled - no AutoGen service
-    image:
-      # Try using official AutoGen or disable if no suitable image exists
-      repository: microsoft/autogen
-      tag: "latest"   # Use latest for testing
-      pullPolicy: IfNotPresent
-    resources:
-      requests:
-        cpu: 25m
-        memory: 64Mi
-      limits:
-        cpu: 500m
-        memory: 256Mi
-    env:
-      - name: LOG_LEVEL
-        value: "debug"
-      - name: PORT
-        value: "8081"
+  # Official kagent controller - no AutoGen needed
 
 # ==============================================================================
 # UI CONFIGURATION - DEV
