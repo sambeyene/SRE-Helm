@@ -65,14 +65,14 @@ agents:
     enabled: true          # Helm chart operations
   observability-agent:
     enabled: true          # Monitoring and observability
+  promql-agent:
+    enabled: true          # Prometheus query operations - ESSENTIAL for SRE!
   
   # DISABLED: Additional agents (enable as needed)
   kgateway-agent:
     enabled: false         # API gateway operations
   istio-agent:
     enabled: false         # Service mesh (enable for istio clusters)
-  promql-agent:
-    enabled: false         # Prometheus queries (enable with monitoring)
   argo-rollouts-agent:
     enabled: false         # Progressive delivery
   cilium-policy-agent:
