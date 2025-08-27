@@ -99,6 +99,28 @@ controller:
       port: 8083
       targetPort: 8083
   env: {}
+  # AutoGen sidecar configuration
+  autogen:
+    enabled: false  # Disabled by default
+    baseUrl: "http://127.0.0.1:8081/api"
+    wsUrl: "ws://127.0.0.1:8081/api/ws"
+    image:
+      registry: ""
+      repository: kagent-dev/kagent/autogen
+      tag: ""  # Will default to Chart version
+      pullPolicy: ""
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    env:
+      - name: LOG_LEVEL
+        value: "info"
+      - name: PORT
+        value: "8081"
 
 # ==============================================================================
 # UI CONFIGURATION

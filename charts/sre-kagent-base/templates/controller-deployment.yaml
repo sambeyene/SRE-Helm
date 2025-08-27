@@ -55,11 +55,11 @@ spec:
             - ":{{ .Values.controller.service.ports.targetPort }}"
             - -metrics-bind-address
             - "0"
-            {{- if .Values.controller.autogen.baseUrl }}
+            {{- if and .Values.controller.autogen.enabled .Values.controller.autogen.baseUrl (ne .Values.controller.autogen.baseUrl "") }}
             - -autogen-base-url
             - {{ .Values.controller.autogen.baseUrl | quote }}
             {{- end }}
-            {{- if .Values.controller.autogen.wsUrl }}
+            {{- if and .Values.controller.autogen.enabled .Values.controller.autogen.wsUrl (ne .Values.controller.autogen.wsUrl "") }}
             - -autogen-ws-url
             - {{ .Values.controller.autogen.wsUrl | quote }}
             {{- end }}

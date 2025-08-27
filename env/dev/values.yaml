@@ -37,9 +37,9 @@ controller:
       memory: 256Mi
   # AutoGen sidecar configuration for dev
   autogen:
-    enabled: true     # Enable AutoGen sidecar
-    baseUrl: "http://127.0.0.1:8081/api"   # Sidecar URL
-    wsUrl: "ws://127.0.0.1:8081/api/ws"    # WebSocket URL
+    enabled: false    # Temporarily disabled - AutoGen image not available
+    baseUrl: ""   # Disabled - no AutoGen service
+    wsUrl: ""     # Disabled - no AutoGen service
     image:
       # Try using official AutoGen or disable if no suitable image exists
       repository: microsoft/autogen
