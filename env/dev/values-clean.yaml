@@ -13,6 +13,7 @@ fullnameOverride: "sre-kagent-dev"
 tag: ""
 
 # Development uses OpenAI with smaller model for cost efficiency
+# API key configured via Kubernetes secret: kagent-openai-dev
 providers:
   default: openAI
   openAI:
@@ -20,6 +21,7 @@ providers:
     model: "gpt-4o-mini"  # Cheaper model for dev
     apiKeySecretRef: kagent-openai-dev
     apiKeySecretKey: OPENAI_API_KEY
+    # Real API key stored in secret - do not put in values.yaml!
 
 # ==============================================================================
 # CONTROLLER CONFIGURATION - DEV
